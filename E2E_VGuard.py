@@ -17,7 +17,6 @@ import torch.optim as optim
 import numpy as np
 from tqdm import tqdm
 from onnx2torch import convert
-import nemo.collections.asr as nemo_asr
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 from transformers import AutoModel
 import torchaudio.compliance.kaldi as kaldi
@@ -105,16 +104,6 @@ class E2E_VGuard():
         elif asr_name == "wav2vec2-large":
             self.asr_model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h-lv60-self")
             self.processor = Wav2Vec2Processor.from_pretrained("facebook/wav2Vec2-large-960h-lv60-self")
-            self.asr_model.to(self.device)
-
-        # Conformer Small
-        elif asr_name == "conformer":
-            self.asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained("stt_en_conformer_ctc_small")
-            self.asr_model.to(self.device)
-        
-        # CitriNet 256
-        elif asr_name == "citrinet":
-            self.asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained("stt_en_citrinet_256")
             self.asr_model.to(self.device)
         
         self.param_no_grad(self.asr_model)
@@ -543,10 +532,7 @@ class E2E_VGuard():
 
 
             ### Projected Gradient Descent
-            if self.asr_name in ["conformer", "citrinet"]:
-                delta = (self.epsilon / 10) * torch.sign(adv_wave.grad) * -1.
-            else:
-                delta = self.lr * torch.sign(adv_wave.grad) * -1.
+            delta = self.lr * torch.sign(adv_wave.grad) * -1.
             adv_wave = delta + adv_wave
             noise = torch.clamp(adv_wave.data - wave, min=-self.epsilon, max=self.epsilon)
             adv_wave = torch.clamp(wave + noise, min=-1., max=1.)
