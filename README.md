@@ -18,7 +18,10 @@ conda activate e2e_vguard
 pip install -r requirements.txt
 
 sudo apt install ffmpeg
-sudo apt install espeak
+sudo apt install speak
+
+cd monotonic_align
+python setup.py build_ext --inplace
 ```
 
 
