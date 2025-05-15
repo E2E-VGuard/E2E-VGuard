@@ -21,6 +21,7 @@ sudo apt install ffmpeg
 sudo apt install speak
 
 cd monotonic_align
+mkdir monotonic_align
 python setup.py build_ext --inplace
 ```
 
